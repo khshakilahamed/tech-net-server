@@ -41,7 +41,7 @@ const run = async () => {
       const id = req.params.id;
 
       const result = await productCollection.findOne({ _id: ObjectId(id) });
-      console.log(result);
+      // console.log(result);
       res.send(result);
     });
 
@@ -49,13 +49,15 @@ const run = async () => {
       const id = req.params.id;
 
       const result = await productCollection.deleteOne({ _id: ObjectId(id) });
-      console.log(result);
+      // console.log(result);
       res.send(result);
     });
 
     app.post("/comment/:id", async (req, res) => {
       const productId = req.params.id;
       const comment = req.body.comment;
+
+      console.log("Hello");
 
       console.log(productId);
       console.log(comment);
@@ -75,6 +77,41 @@ const run = async () => {
 
       console.log("Comment added successfully");
       res.json({ message: "Comment added successfully" });
+    });
+
+    app.get("/comment/:id", async (req, res) => {
+      const productId = req.params.id;
+
+      const result = await productCollection.findOne(
+        { _id: ObjectId(productId) },
+        { projection: { _id: 0, comments: 1 } }
+      );
+
+      if (result) {
+        res.json(result);
+      } else {
+        res.status(404).json({ error: "Product not found" });
+      }
+    });
+
+    app.post("/user", async (req, res) => {
+      const user = req.body;
+
+      const result = await userCollection.insertOne(user);
+
+      res.send(result);
+    });
+
+    app.get("/user/:email", async (req, res) => {
+      const email = req.params.email;
+
+      const result = await userCollection.findOne({ email });
+
+      if (result?.email) {
+        return res.send({ status: true, data: result });
+      }
+
+      res.send({ status: false });
     });
   } finally {
   }
